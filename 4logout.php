@@ -1,8 +1,8 @@
-<?php require("0conn.php")?>
-
 <?php
+require("0conn.php");
+
 session_start();
 session_destroy();
-echo "You just logged out...";
-header("Refresh: 2, url=3login.php");
+header("Location: 3login.php");
+exit();
 ?>
