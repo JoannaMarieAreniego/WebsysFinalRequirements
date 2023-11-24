@@ -76,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["category_id"])) {
         <ul>
             <?php foreach ($categories as $category): ?>
                 <li>
-                    <a href="9customer.php?category_id=<?php echo $category['category_id']; ?>">
+                    <a href="10recipe_detail_customer.php?category_id=<?php echo $category['category_id']; ?>">
                         <?php echo $category['category_name']; ?>
                     </a>
                 </li>
