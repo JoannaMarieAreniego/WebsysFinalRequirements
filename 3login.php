@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["is_admin"] = true;
                 header("Location: 5admin.php");
             } else {
-                header("Location: 6customer.php");
+                header("Location: 9customer.php");
             }
             exit();
         } else {
