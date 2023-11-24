@@ -121,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["category_name"])) {
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <button type="button" name = "delete_selected" onclick="deleteSelectedCategories()">Delete Selected</button>
+            <button type="submit" name = "delete_selected" onclick="deleteSelectedCategories()">Delete Selected</button>
         </form>
         <h2>Manage Recipes</h2>
         <p><a href="6add_recipe.php">Add New Recipe</a></p>
