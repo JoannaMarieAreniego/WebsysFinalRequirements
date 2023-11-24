@@ -2,22 +2,24 @@
 session_start();
 require("0conn.php");
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Error: " . $e->getMessage());
-}
+if (isset($_GET['category_id'])) {
+    $category_id = $_GET['category_id'];
 
-$meal = null; // Initialize $meal to avoid undefined variable warning
+    try {
+        $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+        die("Error: " . $e->getMessage());
+    }
 
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["meal_id"])) {
-    $meal_id = $_GET["meal_id"];
-
-    // Fetch meal details
-    $mealStatement = $pdo->prepare("SELECT * FROM meals WHERE meal_id = ?");
-    $mealStatement->execute([$meal_id]);
-    $meal = $mealStatement->fetch(PDO::FETCH_ASSOC);
+    // Retrieve meals in the selected category
+    $stmt = $pdo->prepare("SELECT * FROM meals WHERE category_id = ?");
+    $stmt->execute([$category_id]);
+    $meals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} else {
+    // Redirect back to customer.php if category_id is not set
+    header("Location: 9customer.php");
+    exit();
 }
 ?>
 
@@ -26,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["meal_id"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal Details</title>
+    <title>Meals in Category</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -54,7 +56,12 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["meal_id"])) {
             margin: 10px 0;
         }
 
-        p {
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
             font-size: 16px;
             margin: 5px 0;
         }
@@ -62,31 +69,25 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["meal_id"])) {
         a {
             text-decoration: none;
             color: #007BFF;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="container">
-    <h1>Meal Details - <?php echo isset($meal['meal_name']) ? $meal['meal_name'] : 'Meal Not Found'; ?></h1>
+        <h1>Meals in Category</h1>
 
-<?php if ($meal): ?>
-    <h2>Ingredients</h2>
-    <p><?php echo $meal['ingredients']; ?></p>
+        <h2>Category: <?php echo $category_id; ?></h2>
+        <ul>
+            <?php foreach ($meals as $meal): ?>
+                <li>
+                    <a href="11meal_details.php?meal_id=<?php echo $meal['meal_id']; ?>">
+                        <?php echo $meal['meal_name']; ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
 
-    <h2>Video</h2>
-    <p><?php echo $meal['video']; ?></p>
-
-    <h2>Image</h2>
-    <p><?php echo $meal['image']; ?></p>
-
-    <h2>Instructions</h2>
-    <p><?php echo $meal['instructions']; ?></p>
-    
-        <?php else: ?>
-            <p>Meal not found.</p>
-        <?php endif; ?>
-
-        <h2>Back to Categories</h2>
         <p><a href="9customer.php">Back to Categories</a></p>
     </div>
 </body>

@@ -10,13 +10,6 @@ try {
 }
 
 $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
-
-if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["category_id"])) {
-    $category_id = $_GET["category_id"];
-    $meals = $pdo->prepare("SELECT * FROM meals WHERE category_id = ?");
-    $meals->execute([$category_id]);
-    $meals = $meals->fetchAll(PDO::FETCH_ASSOC);
-}
 ?>
 
 <!DOCTYPE html>
@@ -82,18 +75,6 @@ if ($_SERVER["REQUEST_METHOD"] == "GET" && isset($_GET["category_id"])) {
                 </li>
             <?php endforeach; ?>
         </ul>
-
-        <?php if (isset($meals)): ?>
-            <h2>Meals</h2>
-            <ul>
-                <?php foreach ($meals as $meal): ?>
-                    <li><?php echo $meal['meal_name']; ?></li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
-        
-        <h2>Logout</h2>
-        <p><a href="4logout.php">Logout</a></p>
     </div>
 </body>
 </html>
