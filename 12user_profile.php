@@ -9,8 +9,16 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-$stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
-$recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if (!isset($_SESSION['username'])) {
+    header("Location: 1login.php");
+    exit();
+}
+
+$username = $_SESSION['username'];
+
+$stmt = $pdo->prepare("SELECT * FROM meals WHERE username = ? ORDER BY date_created ASC");
+$stmt->execute([$username]);
+$userRecipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -18,62 +26,20 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Recipes</title>
+    <title>User Profile</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f3f3f3;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-        }
-
-        h1 {
-            font-size: 24px;
-            margin: 0;
-        }
-
-        h2 {
-            font-size: 20px;
-            margin: 10px 0;
-        }
-
-        p {
-            font-size: 16px;
-            margin: 5px 0;
-        }
-
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-
-        a {
-            text-decoration: none;
-            color: #007BFF;
-            cursor: pointer;
-        }
+        /* Your existing styles */
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Customer Recipes</h1>
-        <h2>Profile</h2>
-        <p><a href="12user_profile.php">Profile</a></p>
+        <h1>User Profile</h1>
+
+        <h2>Add Recipe</h2>
+        <p><a href="13add_recipe.php">Add a New Recipe</a></p>
+
         <ul>
-            <?php foreach ($recipes as $recipe) { ?>
+            <?php foreach ($userRecipes as $recipe) { ?>
                 <li>
                     <h2><?php echo $recipe['meal_name']; ?></h2>
                     <p>Category: <?php echo getCategoryName($pdo, $recipe['category_id']); ?></p>
@@ -84,10 +50,12 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </li>
             <?php } ?>
         </ul>
+
+        <h2>Back to Recipes</h2>
+        <p><a href="10customer_recipes.php">Back to Recipes</a></p>
         <h2>Logout</h2>
         <p><a href="4logout.php">Logout</a></p>
     </div>
-
 </body>
 </html>
 
