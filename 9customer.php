@@ -75,6 +75,8 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC
                 </li>
             <?php endforeach; ?>
         </ul>
+        <h2>Logout</h2>
+        <p><a href="4logout.php">Logout</a></p>
     </div>
 </body>
 </html>
