@@ -47,6 +47,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $meal_id = $pdo->lastInsertId();
 
+            $instructions = explode("\n", $_POST["instructions"]);
+            foreach ($instructions as $step_number => $step_description) {
+                $stmt = $pdo->prepare("INSERT INTO instructions (meal_id, step_number, step_description) VALUES (?, ?, ?)");
+                $stmt->execute([$meal_id, $step_number + 1, trim($step_description)]);
+            }
+
+            // Insert ingredients
+            $ingredients = explode("\n", $_POST["ingredients"]);
+            foreach ($ingredients as $ingredient_name) {
+                $stmt = $pdo->prepare("INSERT INTO ingredients (meal_id, ingredient_name) VALUES (?, ?)");
+                $stmt->execute([$meal_id, trim($ingredient_name)]);
+            }
+
             // Rest of your code...
         } else {
             // Handle the case when the username doesn't exist in the users table
