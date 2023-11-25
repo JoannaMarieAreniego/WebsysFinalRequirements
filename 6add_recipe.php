@@ -16,36 +16,41 @@ if (!isset($_SESSION["is_admin"]) || $_SESSION["is_admin"] !== true) {
     exit();
 }
 
+$username = $_SESSION["username"];
+
+if (!isset($_SESSION["username"])) {
+    echo "Error: Username not found in the session.";
+    exit();
+}
+
 $recipe_preview = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
     if (
         isset($_POST["recipe_name"]) &&
         isset($_POST["category_id"]) &&
         isset($_POST["video_link"]) &&
         isset($_POST["instructions"]) &&
         isset($_POST["ingredients"]) &&
-        isset($_POST["image_link"]) &&
-        isset($_POST["user_id"])
+        isset($_POST["image_link"])
     ) {
         $recipe_name = $_POST["recipe_name"];
         $category_id = $_POST["category_id"];
         $video_link = $_POST["video_link"];
         $image_link = $_POST["image_link"];
-        $user_id = $_POST["user_id"];
 
-        $user_id = $_POST["user_id"];
-        $userCheckStmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-        $userCheckStmt->execute([$user_id]);
+        $userCheckStmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+        $userCheckStmt->execute([$username]);
         $userExists = $userCheckStmt->fetch();
 
         if (!$userExists) {
-            echo "Error: User ID does not exist.";
+            echo "Error: Username does not exist.";
             exit();
         }
     
-        $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link, image_link, user_id) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$recipe_name, $category_id, $video_link, $image_link, $user_id]);
+        $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link, image_link, username) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$recipe_name, $category_id, $video_link, $image_link, $username]);
     
         $meal_id = $pdo->lastInsertId();
 
@@ -239,12 +244,12 @@ function generateRecipePreview($pdo, $meal_id) {
                 <label for="image_link">Image Link:</label>
                 <input type="text" name="image_link" id="image_link" required>
             </div>
+            <input type="hidden" name="username" value="<?php echo $_SESSION['username']; ?>">
             <div id="buttons">
                 <button id="preview-button" type="button" onclick="togglePreview()">Preview</button>
                 <button id="add-button" type="submit">Add Recipe</button>
                 <button id="edit-button" type="button" style="display: none;">Edit</button>
             </div>
-            <input type="hidden" name="user_id" value="<?php echo $_SESSION['id']; ?>">
         </form>
     </div>
     

@@ -14,6 +14,7 @@ try {
     die("Error: " . $e->getMessage());
 }
 
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_selected"])) {
     if (isset($_POST["selected_categories"]) && is_array($_POST["selected_categories"])) {
         $selectedCategories = $_POST["selected_categories"];
