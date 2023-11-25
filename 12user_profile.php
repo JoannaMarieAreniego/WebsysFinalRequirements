@@ -52,7 +52,7 @@ $userRecipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </ul>
 
         <h2>Back to Recipes</h2>
-        <p><a href="10customer_recipes.php">Back to Recipes</a></p>
+        <p><a href="9customer.php">Back to Recipes</a></p>
         <h2>Logout</h2>
         <p><a href="4logout.php">Logout</a></p>
     </div>
