@@ -25,15 +25,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         isset($_POST["video_link"]) &&
         isset($_POST["instructions"]) &&
         isset($_POST["ingredients"]) &&
-        isset($_POST["image_link"])
+        isset($_POST["image_link"]) &&
+        isset($_POST["user_id"])
     ) {
         $recipe_name = $_POST["recipe_name"];
         $category_id = $_POST["category_id"];
         $video_link = $_POST["video_link"];
         $image_link = $_POST["image_link"];
+        $user_id = $_POST["user_id"];
+
+        $user_id = $_POST["user_id"];
+        $userCheckStmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+        $userCheckStmt->execute([$user_id]);
+        $userExists = $userCheckStmt->fetch();
+
+        if (!$userExists) {
+            echo "Error: User ID does not exist.";
+            exit();
+        }
     
-        $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link, image_link) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$recipe_name, $category_id, $video_link, $image_link]);
+        $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link, image_link, user_id) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$recipe_name, $category_id, $video_link, $image_link, $user_id]);
     
         $meal_id = $pdo->lastInsertId();
 
@@ -232,8 +244,10 @@ function generateRecipePreview($pdo, $meal_id) {
                 <button id="add-button" type="submit">Add Recipe</button>
                 <button id="edit-button" type="button" style="display: none;">Edit</button>
             </div>
+            <input type="hidden" name="user_id" value="<?php echo $_SESSION['id']; ?>">
         </form>
     </div>
+    
     <div id="popup" style="display: none;">
         <p id="popup-message" style="background-color: #4CAF50; color: white; text-align: center; padding: 10px;"></p>
     </div>
