@@ -2,7 +2,6 @@
 session_start();
 require("0conn.php");
 
-
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -10,7 +9,9 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-$categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
+// Fetch all recipes in ascending order by date_created
+$stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
+$recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +19,7 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Page</title>
+    <title>Customer Recipes</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -46,38 +47,55 @@ $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC
             margin: 10px 0;
         }
 
+        p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+
         ul {
-            list-style: none;
+            list-style-type: none;
             padding: 0;
         }
 
         li {
-            font-size: 16px;
-            margin: 5px 0;
+            margin-bottom: 10px;
         }
 
         a {
             text-decoration: none;
             color: #007BFF;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, Customer!</h1>
+        <h1>Customer Recipes</h1>
 
-        <h2>Categories</h2>
         <ul>
-            <?php foreach ($categories as $category): ?>
+            <?php foreach ($recipes as $recipe) { ?>
                 <li>
-                    <a href="10recipe_detail_customer.php?category_id=<?php echo $category['category_id']; ?>">
-                        <?php echo $category['category_name']; ?>
-                    </a>
+                    <h2><?php echo $recipe['meal_name']; ?></h2>
+                    <p>Category: <?php echo getCategoryName($pdo, $recipe['category_id']); ?></p>
+                    <p>Video Link: <a href="<?php echo $recipe['video_link']; ?>" target="_blank">Watch Video</a></p>
+                    <p>Image: <img src="<?php echo $recipe['image_link']; ?>" alt="Recipe Image" style="max-width: 50%;"></p>
+                    <p>Date Created: <?php echo $recipe['date_created']; ?></p>
+                    <p><a href="11meal_details.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
                 </li>
-            <?php endforeach; ?>
+            <?php } ?>
         </ul>
         <h2>Logout</h2>
         <p><a href="4logout.php">Logout</a></p>
     </div>
+
 </body>
 </html>
+
+<?php
+function getCategoryName($pdo, $category_id) {
+    $stmt = $pdo->prepare("SELECT * FROM categories WHERE category_id = ?");
+    $stmt->execute([$category_id]);
+    $category = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $category ? $category['category_name'] : 'Unknown';
+}
+?>
