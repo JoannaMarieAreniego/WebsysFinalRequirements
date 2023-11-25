@@ -16,16 +16,11 @@ if (!isset($_SESSION["is_admin"]) || $_SESSION["is_admin"] !== true) {
     exit();
 }
 
-$username = $_SESSION["username"];
-
-if (!isset($_SESSION["username"])) {
-    echo "Error: Username not found in the session.";
-    exit();
-}
-
 $recipe_preview = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_SESSION["username"];
+    
 
     if (
         isset($_POST["recipe_name"]) &&
@@ -35,38 +30,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         isset($_POST["ingredients"]) &&
         isset($_POST["image_link"])
     ) {
-        $recipe_name = $_POST["recipe_name"];
-        $category_id = $_POST["category_id"];
-        $video_link = $_POST["video_link"];
-        $image_link = $_POST["image_link"];
-
+        // Check if the username exists in the users table
         $userCheckStmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
         $userCheckStmt->execute([$username]);
         $userExists = $userCheckStmt->fetch();
 
-        if (!$userExists) {
-            echo "Error: Username does not exist.";
-            exit();
-        }
-    
-        $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link, image_link, username) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([$recipe_name, $category_id, $video_link, $image_link, $username]);
-    
-        $meal_id = $pdo->lastInsertId();
+        if ($userExists) {
+            // Insert the new meal
+            $recipe_name = $_POST["recipe_name"];
+            $category_id = $_POST["category_id"];
+            $video_link = $_POST["video_link"];
+            $image_link = $_POST["image_link"];
 
-        $instructions = explode("\n", $_POST["instructions"]);
-        foreach ($instructions as $step_number => $step_description) {
-            $step_number = $step_number + 1;
-            $stmt = $pdo->prepare("INSERT INTO instructions (meal_id, step_number, step_description) VALUES (?, ?, ?)");
-            $stmt->execute([$meal_id, $step_number, trim($step_description)]);
-        }
+            $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link, image_link, date_created, username) VALUES (?, ?, ?, ?, NOW(), ?)");
+            $stmt->execute([$recipe_name, $category_id, $video_link, $image_link, $username]);
 
-        $ingredients = explode("\n", $_POST["ingredients"]);
-        foreach ($ingredients as $ingredient_name) {
-            $stmt = $pdo->prepare("INSERT INTO ingredients (meal_id, ingredient_name) VALUES (?, ?)");
-            $stmt->execute([$meal_id, trim($ingredient_name)]);
+            $meal_id = $pdo->lastInsertId();
+
+            // Rest of your code...
+        } else {
+            // Handle the case when the username doesn't exist in the users table
+            echo "Error: User does not exist.";
         }
-        $recipe_preview = generateRecipePreview($pdo, $meal_id);
     }
 }
 
@@ -244,7 +229,6 @@ function generateRecipePreview($pdo, $meal_id) {
                 <label for="image_link">Image Link:</label>
                 <input type="text" name="image_link" id="image_link" required>
             </div>
-            <input type="hidden" name="username" value="<?php echo $_SESSION['username']; ?>">
             <div id="buttons">
                 <button id="preview-button" type="button" onclick="togglePreview()">Preview</button>
                 <button id="add-button" type="submit">Add Recipe</button>

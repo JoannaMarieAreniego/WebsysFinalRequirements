@@ -13,7 +13,7 @@ try {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $entered_username = $_POST["username"];
     $entered_password = $_POST["password"];
-    
+    $_SESSION["username"] = true;
 
     if ($entered_username === "admin" && $entered_password === "admin") {
         $_SESSION["is_admin"] = true;
@@ -26,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($user && password_verify($entered_password, $user["password"])) {
             $_SESSION["username"] = $user["username"];
-            $_SESSION["user_id"] = $user["id"];
             if ($user["is_admin"] == 1) {
                 $_SESSION["is_admin"] = true;
                 header("Location: 5admin.php");
