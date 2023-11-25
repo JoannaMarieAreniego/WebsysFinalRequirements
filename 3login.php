@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         .left-panel {
             flex: 1;
-            background: url('loginPhoto.jpg');
+            background: url('images/loginPhoto.jpg');
             background-size: cover;
             background-position: center;
             border-radius: 8px 0 0 8px;
@@ -106,7 +106,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container">
         <div class="left-panel">
-            <!-- You can optionally add content or leave it empty -->
         </div>
         <div class="right-panel">
             <h2>Login</h2>

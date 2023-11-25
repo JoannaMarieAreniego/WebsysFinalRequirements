@@ -84,6 +84,7 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </li>
             <?php } ?>
         </ul>
+        <button onclick="window.location.href='14chat.php';">Open Chat</button>
         <h2>Logout</h2>
         <p><a href="4logout.php">Logout</a></p>
     </div>
