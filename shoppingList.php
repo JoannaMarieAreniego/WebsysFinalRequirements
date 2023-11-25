@@ -11,13 +11,10 @@ if (isset($_GET['meal_id'])) {
     } catch (PDOException $e) {
         die("Error: " . $e->getMessage());
     }
-
-    // Fetch meal details
     $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_id = ?");
     $stmt->execute([$meal_id]);
     $meal = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Fetch ingredients
     $ingredientsStmt = $pdo->prepare("SELECT * FROM ingredients WHERE meal_id = ?");
     $ingredientsStmt->execute([$meal_id]);
     $ingredients = $ingredientsStmt->fetchAll(PDO::FETCH_ASSOC);
