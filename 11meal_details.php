@@ -35,8 +35,8 @@ if (isset($_GET['meal_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comment_text = $_POST['comment'];
-    $insertStmt = $pdo->prepare("INSERT INTO comments (meal_id, user_name, comment_text, rating) VALUES (?, ?, ?, ?)");
-    $insertStmt->execute([$meal_id, $_SESSION['username'], $comment_text, $rating]);
+    $insertStmt = $pdo->prepare("INSERT INTO comments (meal_id, user_name, comment_text) VALUES (?, ?, ? )");
+    $insertStmt->execute([$meal_id, $_SESSION['username'], $comment_text]);
     header("Location: 11meal_details.php?meal_id=$meal_id");
     exit();
 }
@@ -102,3 +102,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </body>
 </html>
+
