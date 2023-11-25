@@ -13,32 +13,27 @@ try {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $entered_username = $_POST["username"];
     $entered_password = $_POST["password"];
-    $_SESSION["username"] = true;
 
-    if ($entered_username === "admin" && $entered_password === "admin") {
-        $_SESSION["is_admin"] = true;
-        header("Location: 5admin.php");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->execute([$entered_username]);
+    $user = $stmt->fetch();
+
+    if ($user && password_verify($entered_password, $user["password"])) {
+        $_SESSION["username"] = $entered_username; // Use the entered username
+        if ($entered_username === "admin") {
+            $_SESSION["is_admin"] = true;
+            header("Location: 5admin.php");
+        } else {
+            $_SESSION["is_admin"] = false;
+            header("Location: 9customer.php");
+        }
         exit();
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([$entered_username]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($entered_password, $user["password"])) {
-            $_SESSION["username"] = $user["username"];
-            if ($user["is_admin"] == 1) {
-                $_SESSION["is_admin"] = true;
-                header("Location: 5admin.php");
-            } else {
-                header("Location: 9customer.php");
-            }
-            exit();
-        } else {
-            echo "Invalid username or password. Please try again.";
-        }
+        echo "Invalid username or password. Please try again.";
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html>
