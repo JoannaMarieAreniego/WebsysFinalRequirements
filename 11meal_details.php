@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             ?>
         </ul>
-
+        <a href="shoppingList.php?meal_id=<?php echo $meal_id; ?>" class="shopping-list-btn">Shopping List</a>
         <p><a href="9customer.php">Back to Categories</a></p>
 
         <h3>Comments</h3>
