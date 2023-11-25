@@ -9,7 +9,6 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Fetch all recipes in ascending order by date_created
 $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
 $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
