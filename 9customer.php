@@ -9,8 +9,25 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-$stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
+// Check if a search query is submitted
+if (isset($_GET['search'])) {
+    $searchTerm = '%' . $_GET['search'] . '%';
+    // Fetch meals that contain the search term in ingredients or meal name
+    $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_name LIKE :searchTerm OR meal_id IN (SELECT meal_id FROM ingredients WHERE ingredient_name LIKE :searchTerm)");
+$stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
+} else {
+    // Fetch all meals
+    $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
+}
+
+// Execute the query
+$stmt->execute();
+
 $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+
 ?>
 
 <!DOCTYPE html>
@@ -65,13 +82,48 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             color: #007BFF;
             cursor: pointer;
         }
+
+        /* Search form styles */
+        form {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Customer Recipes</h1>
+
+        <!-- Search Form -->
+        <form action="" method="GET">
+            <label for="search">Search Ingredients or Meal Name:</label>
+            <input type="text" name="search" id="search" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+            <button type="submit">Search</button>
+        </form>
+
         <h2>Profile</h2>
         <p><a href="12user_profile.php">Profile</a></p>
+
         <ul>
             <?php foreach ($recipes as $recipe) { ?>
                 <li>
@@ -84,10 +136,11 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </li>
             <?php } ?>
         </ul>
+
         <h2>Logout</h2>
         <p><a href="4logout.php">Logout</a></p>
-    </div>
 
+    </div>
 </body>
 </html>
 
@@ -99,3 +152,4 @@ function getCategoryName($pdo, $category_id) {
     return $category ? $category['category_name'] : 'Unknown';
 }
 ?>
+
