@@ -2,6 +2,13 @@
 session_start();
 require("0conn.php");
 
+if (!isset($_SESSION["username"])) {
+    header("Location: 3login.php");
+    exit();
+}
+
+$loggedInUsername = isset($_SESSION["username"]) ? $_SESSION["username"] : "";
+
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -9,25 +16,17 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Check if a search query is submitted
 if (isset($_GET['search'])) {
     $searchTerm = '%' . $_GET['search'] . '%';
-    // Fetch meals that contain the search term in ingredients or meal name
     $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_name LIKE :searchTerm OR meal_id IN (SELECT meal_id FROM ingredients WHERE ingredient_name LIKE :searchTerm)");
 $stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
 } else {
-    // Fetch all meals
     $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
 }
 
-// Execute the query
 $stmt->execute();
 
 $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
-
-
 ?>
 
 <!DOCTYPE html>
