@@ -45,33 +45,175 @@ function getIngredients($pdo, $meal_id) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-color: #ededed;
+            filter: blur(15px);
+            z-index: -1;
+        }
+
+        .logo-container {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+             justify-content: center; 
+             align-items: center;
+            background-color: #18392B; /* Green background */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            padding: 20px;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-family: cursive;
+            font-size: 24px;
+            margin: 0;
+            color: #fff; /* White text */
+        }
+
+
+        h3 {
+            /* margin-top: 70px; */
+            color: #fff; /* White text */
+            font-weight: bold;
+            padding: 20px;
+        }
+
+
+        .container {
+            max-width: 700px; 
+            margin: 70px auto;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background-color: #4caf50;
+            color: #FFF;
+            font-weight: bold;
+            text-align: center;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card img {
+         display: block;
+         margin: 0 auto;
+         width: 500px;
+        max-width: 100%;
+        height: 400px;
+         margin-bottom: 20px;
+        border-radius: 8px;/* Add border-radius for rounded corners */
+}
+        .card-text {
+            margin-bottom: 10px;
+            
+        }
+
+        .card-title {
+            color: #4caf50;
+        }
+
+        ul, ol {
+            margin-bottom: 15px;
+        }
+
+        a {
+            color: #4caf50;;
+            text-decoration: none;
+        }
+
+       
+
+
+        .btn-secondary {
+            background-color: #4caf50; /* Green background */
+            color: #fff; /* White text */
+        }
+
+        .dashboard{
+           margin-left: 1100px;
+        align-items: center;
+        justify-items: center;
+        }
+
+    </style>
 </head>
+
 <body>
-    <h1>Recipe Details</h1>
-    <h2><?php echo $recipe['meal_name']; ?></h2>
-    <p>Category: <?php echo $recipe['category_id']; ?></p>
-    <p>Video Link: <?php echo $recipe['video_link']; ?></p>
-    <p>Image Link: <?php echo $recipe['image_link']; ?></p>
-    <h3>Image</h3>
-    <img src="<?php echo $recipe['image_link']; ?>" alt="Recipe Image" style="max-width: 50%;">
 
-    <h3>Instructions</h3>
-    <ol>
-        <?php foreach ($instructions as $instruction) { ?>
-            <li><?php echo $instruction['step_description']; ?></li>
-        <?php } ?>
-    </ol>
+<div class="logo-container">
+        <div class="logo">
+            <img src="logo.png" alt="Tastebud Logo">
+            <h1>Tastebud</h1>
+        </div>
+        <div class="dashboard">
+    <a href="5admin.php" class="btn btn-secondary">Admin Dashboard</a>
+</div>
+    </div>
 
-    <h3>Ingredients</h3>
-    <ul>
-        <?php foreach ($ingredients as $ingredient) { ?>
-            <li><?php echo $ingredient['ingredient_name']; ?></li>
-        <?php } ?>
-    </ul>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h2><?php echo $recipe['meal_name']; ?></h2>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Category: <?php echo $recipe['category_id']; ?></p>
+                <p class="card-text">Video Link: <a href="<?php echo $recipe['video_link']; ?>" target="_blank"><?php echo $recipe['video_link']; ?></a></p>
 
-    <p><a href="5admin.php">Back to Admin Dashboard</a></p>
+                <h3 class="card-title">Image</h3>
+                <img src="<?php echo $recipe['image_link']; ?>" alt="Recipe Image">
+
+                <h3 class="card-title">Instructions</h3>
+                <ol class="card-text">
+                    <?php foreach ($instructions as $instruction) { ?>
+                        <li><?php echo $instruction['step_description']; ?></li>
+                    <?php } ?>
+                </ol>
+
+                <h3 class="card-title">Ingredients</h3>
+                <ul class="card-text">
+                    <?php foreach ($ingredients as $ingredient) { ?>
+                        <li><?php echo $ingredient['ingredient_name']; ?></li>
+                    <?php } ?>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
