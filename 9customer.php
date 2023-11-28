@@ -21,7 +21,7 @@ if (isset($_GET['search'])) {
     $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_name LIKE :searchTerm OR meal_id IN (SELECT meal_id FROM ingredients WHERE ingredient_name LIKE :searchTerm)");
 $stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
 } else {
-    $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
+    $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created DESC");
 }
 
 $stmt->execute();
@@ -82,7 +82,6 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             cursor: pointer;
         }
 
-        /* Search form styles */
         form {
             margin-top: 20px;
             margin-bottom: 20px;
@@ -113,7 +112,6 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container">
         <h1>Customer Recipes</h1>
 
-        <!-- Search Form -->
         <form action="" method="GET">
             <label for="search">Search Ingredients or Meal Name:</label>
             <input type="text" name="search" id="search" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
@@ -131,7 +129,7 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p>Video Link: <a href="<?php echo $recipe['video_link']; ?>" target="_blank">Watch Video</a></p>
                     <p>Image: <img src="<?php echo $recipe['image_link']; ?>" alt="Recipe Image" style="max-width: 50%;"></p>
                     <p>Date Created: <?php echo $recipe['date_created']; ?></p>
-                    <p><a href="11meal_details.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
+                    <p><a href="11meal_details_comments.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
                 </li>
             <?php } ?>
         </ul>

@@ -16,7 +16,6 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_selected"])) {
     if (isset($_POST["selected_categories"]) && is_array($_POST["selected_categories"])) {
         $selectedCategories = $_POST["selected_categories"];
@@ -24,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["delete_selected"])) {
             $stmt = $pdo->prepare("DELETE FROM categories WHERE category_id = ?");
             $stmt->execute([$categoryId]);
         }
-
         $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
     }
 }
@@ -35,49 +33,84 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["category_name"])) {
     $stmt->execute([$category_name]);
 }
 
-    $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
+$categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f3f3f3;
+     body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+   
+    }
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('foodBackground.jpeg') no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(15px); 
+    z-index: -1;
+}
+
+        .logo-container {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #18392B;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
             padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+            width: auto;
+            margin-right: 10px;
         }
 
-        h1 {
+        .logo h1 {
+            font-family: cursive;
             font-size: 24px;
             margin: 0;
+            color: #FFF;
         }
 
-        h2 {
-            font-size: 20px;
-            margin: 10px 0;
+        .add-category-form {
+            margin-bottom: 20px;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
+        .list-group {
+            text-align: left;
         }
 
         li {
-            font-size: 16px;
-            margin: 5px 0;
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
         }
 
         a {
@@ -85,36 +118,100 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["category_name"])) {
             color: #007BFF;
         }
 
-        form {
-            margin-top: 10px;
-        }
-
-        .category {
-            margin: 20px 0;
-        }
-
-
         .delete-button {
-            color: red;
+            color: #fff;
+            background-color: #dc3545;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
             cursor: pointer;
         }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .btn-margin {
+            margin-top: 20px;
+        }
+
+        h2{
+           
+            padding: 20px;
+        }
+        h3{
+            color: #000;
+            padding: 10px;
+            margin-left: 20px;
+        }
+       .add{
+        margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 5px;
+       }
+       .categories{
+        margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 5px;
+       }
+      
+       h3{
+        margin-top:70px;
+        Color: #18392B;
+        font-weight: bold;
+        
+       }
+      .manage{
+         margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 5px;
+      }
+       
+  
     </style>
 </head>
+
 <body>
+
+    <div class="logo-container">
+        <div class="logo">
+            <img src="logo.png" alt="Tastebud Logo">
+            <h1>Tastebud</h1>
+        </div>
+    </div>
+   
+    </div>
+    
+
     <div class="container">
-        <h1>Welcome, Admin!</h1>
-
-        <h2>Add Category</h2>
+    <h3>Welcome, Admin!</h3>
+    <div class = "add">
+        <p>Add Category</p>
         <form method="post">
-            <input type="text" name="category_name" placeholder="Category Name" required>
-            <button type="submit">Add Category</button>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" name="category_name" placeholder="Category Name" required>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" type="submit">Add Category</button>
+                </div>
+            </div>
         </form>
+        </div>
 
-        <h2>Categories</h2>
+        <div class = "categories">
+        <p>Categories</p>
         <form method="post" id="deleteForm">
-            <ul>
+            <ul class="list-group">
                 <?php foreach ($categories as $category): ?>
-                    <li class="category">
+                    <li class="list-group-item">
                         <input type="checkbox" id="category_<?php echo $category['category_id']; ?>" name="selected_categories[]" value="<?php echo $category['category_id']; ?>">
                         <span>
                             <a href="8category_page.php?category_id=<?php echo $category['category_id']; ?>">
@@ -124,14 +221,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["category_name"])) {
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <button type="submit" name = "delete_selected" onclick="deleteSelectedCategories()">Delete Selected</button>
+            <button type="submit" name="delete_selected" class="btn btn-danger mt-3" onclick="deleteSelectedCategories()">Delete Selected</button>
         </form>
-        <h2>Manage Recipes</h2>
-        <p><a href="6add_recipe.php">Add New Recipe</a></p>
+        </div>
 
-        <h2>Logout</h2>
-        <p><a href="4logout.php">Logout</a></p>
+        <div class = "manage">
+        <p>Manage Recipes</p>
+        <p><a href="6add_recipe.php" class="btn btn-success">Add New Recipe</a></p>
+        </div>
+
+        <p><a href="4logout.php" class="btn btn-secondary">Logout</a></p>
+        <p><a href="adminprofile.php" class="btn btn-secondary">User Profile</a></p>
     </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         function deleteSelectedCategories() {
@@ -152,4 +258,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["category_name"])) {
         }
     </script>
 </body>
+
 </html>

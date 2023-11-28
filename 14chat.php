@@ -52,7 +52,7 @@ if (isset($_POST['question'])) {
             CURLOPT_POSTFIELDS => $postdata,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
-                'Authorization: Bearer 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',
+                'Authorization: Bearer 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',
             ),
         ));
 

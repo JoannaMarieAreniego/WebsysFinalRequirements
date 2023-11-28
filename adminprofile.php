@@ -33,10 +33,7 @@ $userRecipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="container">
-        <h1>User Profile</h1>
-
-        <h2>Add Recipe</h2>
-        <p><a href="13add_recipe.php">Add a New Recipe</a></p>
+        <h1>Admin Profile</h1>
 
         <ul>
             <?php foreach ($userRecipes as $recipe) { ?>
@@ -46,13 +43,13 @@ $userRecipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p>Video Link: <a href="<?php echo $recipe['video_link']; ?>" target="_blank">Watch Video</a></p>
                     <p>Image: <img src="<?php echo $recipe['image_link']; ?>" alt="Recipe Image" style="max-width: 50%;"></p>
                     <p>Date Created: <?php echo $recipe['date_created']; ?></p>
-                    <p><a href="15userposts.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
+                    <p><a href="adminposts.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
                 </li>
             <?php } ?>
         </ul>
 
         <h2>Back to Recipes</h2>
-        <p><a href="9customer.php">Back to Recipes</a></p>
+        <p><a href="5admin.php">Back to Admin Dashboard</a></p>
         <h2>Logout</h2>
         <p><a href="4logout.php">Logout</a></p>
     </div>

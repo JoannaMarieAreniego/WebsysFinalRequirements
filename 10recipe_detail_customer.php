@@ -81,7 +81,7 @@ if (isset($_GET['category_id'])) {
         <ul>
             <?php foreach ($meals as $meal): ?>
                 <li>
-                    <a href="11meal_details.php?meal_id=<?php echo $meal['meal_id']; ?>">
+                    <a href="11meal_details_comments.php?meal_id=<?php echo $meal['meal_id']; ?>">
                         <?php echo $meal['meal_name']; ?>
                     </a>
                 </li>
