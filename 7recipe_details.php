@@ -156,8 +156,13 @@ function getIngredients($pdo, $meal_id) {
 
 
         .btn-secondary {
+<<<<<<< HEAD
             background-color: #4caf50;
             color: #fff;
+=======
+            background-color: #4caf50; /* Green background */
+            color: #fff; /* White text */
+>>>>>>> 519b59cce80242a568410c2ed347dafdfc9ed57b
         }
 
         .dashboard{
@@ -216,4 +221,8 @@ function getIngredients($pdo, $meal_id) {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 519b59cce80242a568410c2ed347dafdfc9ed57b

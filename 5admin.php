@@ -231,7 +231,10 @@ body::before {
         </div>
 
         <p><a href="4logout.php" class="btn btn-secondary">Logout</a></p>
+<<<<<<< HEAD
         <p><a href="adminprofile.php" class="btn btn-secondary">User Profile</a></p>
+=======
+>>>>>>> 519b59cce80242a568410c2ed347dafdfc9ed57b
     </div>
 
     <!-- Bootstrap JS and dependencies -->
@@ -259,4 +262,8 @@ body::before {
     </script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 519b59cce80242a568410c2ed347dafdfc9ed57b
