@@ -33,7 +33,10 @@ if (isset($_GET['meal_id'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Check if the user is logged in
+$userLoggedIn = isset($_SESSION['username']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userLoggedIn) {
     $comment_text = $_POST['comment'];
     $insertStmt = $pdo->prepare("INSERT INTO comments (meal_id, user_name, comment_text) VALUES (?, ?, ?)");
     $insertStmt->execute([$meal_id, $_SESSION['username'], $comment_text]);
@@ -73,8 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             ?>
         </ul>
-        <a href="shoppingList.php?meal_id=<?php echo $meal_id; ?>" class="shopping-list-btn">Shopping List</a>
-        <p><a href="9customer.php">Back to Categories</a></p>
+        <?php if ($userLoggedIn): ?>
+            <a href="shoppingList.php?meal_id=<?php echo $meal_id; ?>" class="shopping-list-btn">Shopping List</a>
+        <?php else: ?>
+            <p></p>
+        <?php endif; ?>
 
         <h3>Comments</h3>
         <?php if (count($comments) > 0): ?>
@@ -90,16 +96,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <p>No comments available.</p>
         <?php endif; ?>
 
-        <form method="post" action="">
-            <div>
-                <label for="comment">Add a Comment:</label>
-                <textarea name="comment" id="comment" rows="3" required></textarea>
-            </div>
-            <button type="submit">Submit Comment</button>
-        </form>
+        <?php if ($userLoggedIn): ?>
+            <form method="post" action="">
+                <div>
+                    <label for="comment">Add a Comment:</label>
+                    <textarea name="comment" id="comment" rows="3" required></textarea>
+                </div>
+                <button type="submit">Submit Comment</button>
+            </form>
+        <!-- padesign din -->
+        <?php else: ?>
+            <p>You need to <a href="1login.php">log in</a> to post comments.</p>
+        <?php endif; ?>
 
         <p><a href="9customer.php">Back to Categories</a></p>
     </div>
 </body>
 </html>
-

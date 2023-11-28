@@ -2,11 +2,6 @@
 session_start();
 require("0conn.php");
 
-if (!isset($_SESSION["username"])) {
-    header("Location: 3login.php");
-    exit();
-}
-
 $loggedInUsername = isset($_SESSION["username"]) ? $_SESSION["username"] : "";
 
 try {
@@ -118,8 +113,14 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <button type="submit">Search</button>
         </form>
 
-        <h2>Profile</h2>
-        <p><a href="12user_profile.php">Profile</a></p>
+        <?php if (!empty($loggedInUsername)) { ?>
+            <h2>Profile</h2>
+            <p><a href="12user_profile.php">Profile</a></p>
+        
+        <!-- padesign ako netong Login to keneme -->
+        <?php } else { ?>
+            <p>Login to view your profile.</p>
+        <?php } ?>
 
         <ul>
             <?php foreach ($recipes as $recipe) { ?>
