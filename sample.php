@@ -1,210 +1,295 @@
 <?php
 session_start();
 
-if (!isset($_SESSION["user_id"])) {
-    header("Location: 3login.php");
-    exit();
-}
-
 require("0conn.php");
+$conversation = array();
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Error: " . $e->getMessage());
+if (isset($_POST['go_to_dashboard'])) {
+    $stmt_clear = $conn->prepare("DELETE FROM chat_data");
+    $stmt_clear->execute();
+    $stmt_clear->close();
+    header("Location: 9customer.php#bottom");
 }
 
-if (!isset($_SESSION["is_admin"]) || $_SESSION["is_admin"] !== true) {
-    echo "You must login as an admin to access this page.";
-    header("Refresh: 2; Location: 5admin.php");
-    exit();
+$fetch_stmt = $conn->prepare("SELECT message_send, send_date, message_received, received_date FROM chat_data ORDER BY id ASC");
+$fetch_stmt->execute();
+$fetch_result = $fetch_stmt->get_result();
+
+while ($row = $fetch_result->fetch_assoc()) {
+    $conversation[] = array(
+        "user" => $row['message_send'],
+        "user_date" => $row['send_date'],
+        "bot" => $row['message_received'],
+        "bot_date" => $row['received_date']
+    );
 }
 
-$recipe_preview = "";
+$fetch_stmt->close();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (
-        isset($_POST["recipe_name"]) &&
-        isset($_POST["category_id"]) &&
-        isset($_POST["video_link"]) &&
-        isset($_POST["instructions"]) &&
-        isset($_POST["ingredients"])
-    ) {
-        $recipe_name = $_POST["recipe_name"];
-        $category_id = $_POST["category_id"];
-        $video_link = $_POST["video_link"];
+if (isset($_POST['question'])) {
+    $curl = curl_init();
+    $str = $_POST['question'];
+    $postdata = array(
+        "model" => "text-davinci-003",
+        "prompt" => $str,
+        "temperature" => 0,
+        "max_tokens" => 500
+    );
+    $postdata = json_encode($postdata);
 
-        $stmt = $pdo->prepare("INSERT INTO meals (meal_name, category_id, video_link) VALUES (?, ?, ?)");
-        $stmt->execute([$recipe_name, $category_id, $video_link]);
+    $retry = 0;
+    do {
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.openai.com/v1/completions',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $postdata,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Authorization: Bearer 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',
+            ),
+        ));
 
-        $meal_id = $pdo->lastInsertId();
+        $response = curl_exec($curl);
+        $result = json_decode($response, true);
 
-        $instructions = explode("\n", $_POST["instructions"]);
-        foreach ($instructions as $step_number => $step_description) {
-            $step_number = $step_number + 1;
-            $stmt = $pdo->prepare("INSERT INTO instructions (meal_id, step_number, step_description) VALUES (?, ?, ?)");
-            $stmt->execute([$meal_id, $step_number, trim($step_description)]);
+        if ($retry > 0 && isset($result['error']) && $result['error']['code'] == 'ratelimit-exceeded') {
+            sleep(20); // Sleep for 20 seconds before retrying
         }
 
-        $ingredients = explode("\n", $_POST["ingredients"]);
-        foreach ($ingredients as $ingredient_name) {
-            $stmt = $pdo->prepare("INSERT INTO ingredients (meal_id, ingredient_name) VALUES (?, ?)");
-            $stmt->execute([$meal_id, trim($ingredient_name)]);
-        }
+        $retry++;
+    } while ($retry <= 10 && (isset($result['error']) && $result['error']['code'] == 'ratelimit-exceeded'));
 
-        // Create a preview of the added recipe
-        $recipe_preview = generateRecipePreview($pdo, $meal_id);
+    curl_close($curl);
+
+    $newdate = date('Y-m-d');
+    if (is_array($result) && array_key_exists("error", $result)) {
+        $error_message = "Oops! We ran into an issue: " . $result['error']['message'];
+        echo $error_message;
+        $message = $error_message;
+    } else {
+        $message = $result['choices'][0]['text'];
+    }
+    $botreply = array("answer" => $message, "received_date" => $newdate);
+
+    if (isset($_SESSION['username'])) {
+        $stmt = $conn->prepare("INSERT INTO chat_data (message_send, send_date, message_received, received_date, username) VALUES (?, ?, ?, ?, ?)");
+        $stmt->bind_param("sssss", $message_send, $send_date, $message_received, $received_date, $_SESSION['username']);
+
+        $message_send = $_POST['question'];
+        $send_date = date('Y-m-d');
+        $message_received = $botreply['answer'];
+        $received_date = $botreply['received_date'];
+        $stmt->execute();
+        $stmt->close();
+
+        // Update conversation array with the new entry
+        $conversation[] = array(
+            "user" => $message_send,
+            "user_date" => $send_date,
+            "bot" => $message_received,
+            "bot_date" => $received_date
+        );
+    } else {
+        // Handle the case when $_SESSION['username'] is not set
+        echo "User not logged in.";
     }
 }
 
-function generateRecipePreview($pdo, $meal_id) {
-    // Retrieve the recipe details from the database
-    $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_id = ?");
-    $stmt->execute([$meal_id]);
-    $recipe = $stmt->fetch();
-
-    // Retrieve the instructions for the recipe
-    $stmt = $pdo->prepare("SELECT * FROM instructions WHERE meal_id = ? ORDER BY step_number");
-    $stmt->execute([$meal_id]);
-    $instructions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Retrieve the ingredients for the recipe
-    $stmt = $pdo->prepare("SELECT * FROM ingredients WHERE meal_id = ?");
-    $stmt->execute([$meal_id]);
-    $ingredients = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    $preview = "<h2>Recipe Preview</h2>";
-    $preview .= "<h3>{$recipe['meal_name']}</h3>";
-    $preview .= "<p>Category: {$recipe['category_id']}</p>";
-    $preview .= "<p>Video Link: {$recipe['video_link']}</p>";
-
-    $preview .= "<h3>Instructions</h3>";
-    $preview .= "<ol>";
-    foreach ($instructions as $instruction) {
-        $preview .= "<li>{$instruction['step_description']}</li>";
-    }
-    $preview .= "</ol>";
-
-    $preview .= "<h3>Ingredients</h3>";
-    $preview .= "<ul>";
-    foreach ($ingredients as $ingredient) {
-        $preview .= "<li>{$ingredient['ingredient_name']}</li>";
-    }
-    $preview .= "</ul>";
-
-    return $preview;
+if (!isset($_SESSION['user_avatar'])) {
+    $randomAvatarNumber = rand(1, 7);
+    $_SESSION['user_avatar'] = "images/avatar{$randomAvatarNumber}.jpg";
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Add Recipe</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        #form-section {
-            display: block;
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5; 
+            background: #ffffff url('images/background.jpg') no-repeat fixed center;
+            background-size: cover;
         }
 
-        #preview-section {
-            display: none;
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 550px;
+            max-width: 800px;
+            margin: 20px auto;
+            overflow: auto;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background: #ffffff url('images/container.jpg') no-repeat fixed center;
+            background-size: cover;
         }
 
-        #buttons {
-            text-align: center;
+        .messages {
+            flex-grow: 1;
+            max-height: 400px;
+            overflow-y: auto; 
+        }
+
+        .user-message {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            text-align: justify;
+        }
+
+        .bot-message {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            text-align: justify;
+        }
+
+        .user-message-text,
+        .bot-message-text {
+            text-align: left;
+            border-radius: 10px;
+            padding: 12px;
+            margin-left: 10px;
+            overflow-wrap: break-word;
+            max-width: 60%;
+        }
+
+        .user-message-text {
+            background-color: #7FFF7F; /* Light green for user messages */
+            color: #333;
+        }
+
+        .bot-message-text {
+            background-color: #FFC0CB; /* Light pink for bot messages */
+            color: #333;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+        .input-forms {
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 10px;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            width: 100%; /* Make the input field 100% width */
+        }
+
+        button {
+            background-color: #008CBA;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;/
+        }
+
+        .user-avatar,
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            overflow: hidden;
+            border-radius: 50%;
+            margin-left: 10px;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 40px;
+            font-size: 18px;
+            color: white;
+        }
+
+        .user-avatar img,
+        .bot-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .time{
+            size: 10px;
         }
     </style>
-    <script>
-        function togglePreview() {
-            var formSection = document.getElementById("form-section");
-            var previewSection = document.getElementById("preview-section");
-            var previewButton = document.getElementById("preview-button");
-            var addButton = document.getElementById("add-button");
-            var editButton = document.getElementById("edit-button");
-
-            if (formSection.style.display === "block") {
-                formSection.style.display = "none";
-                previewSection.style.display = "block";
-                previewButton.innerText = "Edit";
-                addButton.style.display = "none";
-                editButton.style.display = "inline";
-                toggleReadOnly(true);
-            } else {
-                formSection.style.display = "block";
-                previewSection.style.display = "none";
-                previewButton.innerText = "Preview";
-                addButton.style.display = "none";
-                editButton.style.display = "inline";
-                toggleReadOnly(false);
-            }
-        }
-
-        function toggleReadOnly(readonly) {
-            var inputs = document.getElementsByTagName("input");
-            for (var i = 0; i < inputs.length; i++) {
-                inputs[i].readOnly = readonly;
-            }
-            var selects = document.getElementsByTagName("select");
-            for (var i = 0; i < selects.length; i++) {
-                selects[i].disabled = readonly;
-            }
-            var textareas = document.getElementsByTagName("textarea");
-            for (var i = 0; i < textareas.length; i++) {
-                textareas[i].readOnly = readonly;
-            }
-        }
-    </script>
+    <title>AI Chatbot</title>
 </head>
 <body>
-    <h1>Add New Recipe</h1>
-    <div id="form-section">
-        <form method="post">
-            <div>
-                <label for="recipe_name">Recipe Name:</label>
-                <input type="text" name="recipe_name" id="recipe_name" required>
-            </div>
-            <div>
-                <label for="category_id">Category:</label>
-                <select name="category_id" id="category_id" required>
-                    <?php
-                    $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($categories as $category) {
-                        echo "<option value='{$category['category_id']}'>{$category['category_name']}</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-            <div>
-                <label for="video_link">Video Link:</label>
-                <input type="text" name="video_link" id="video_link" required>
-            </div>
-            <div>
-                <label for="instructions">Instructions (one step per line):</label>
-                <textarea name="instructions" id="instructions" rows="5" required></textarea>
-            </div>
-            <div>
-                <label for="ingredients">Ingredients (one ingredient per line):</label>
-                <textarea name="ingredients" id="ingredients" rows="5" required></textarea>
-            </div>
-            <div id="buttons">
-                <button id="preview-button" type="button" onclick="togglePreview()">Preview</button>
-                <button id="add-button" type="submit" style="display: none;">Add Recipe</button>
-                <button id="edit-button" type="button" style="display: none;">Edit</button>
-            </div>
-        </form>
-    </div>
-    
-    <div id="preview-section">
-        <?php echo $recipe_preview; ?>
-        <div id="buttons">
-            <button id="preview-button" type="button" onclick="togglePreview()">Edit</button>
-            <button id="add-button" type="submit" style="display: none;">Add Recipe</button>
+    <div class="container">
+        <div class="messages">
+            <?php
+            foreach ($conversation as $index => $entry) {
+                $userInitial = strtoupper(substr($entry['user'], 0, 1));
+            
+                if ($entry['user'] != "") {
+                    echo "<div class='user-message'>
+                              <div class='time'>({$entry['user_date']})</div>
+                              <br>
+                              <div class='user-message-text'>{$entry['user']}</div>
+                              <div class='user-avatar'><img src='{$_SESSION['user_avatar']}' alt='User Avatar'></div>
+                          </div>";
+                }
+            
+                if ($entry['bot'] != "") {
+                    $botInitial = strtoupper(substr("T", 0, 1));
+                    echo "<div class='bot-message'>
+                              <div class='bot-avatar'><img src='images/aiavatar.jpg' alt='Bot Avatar'></div>
+                              <div class='bot-message-text'>{$entry['bot']}</div>
+                          </div>";
+                }
+            }
+            ?>
+        </div>
+
+        <div class="input-forms">
+            <form method='post' action='#bottom'>
+                <label for='question'>Ask a question:</label>
+                <input type='text' name='question' required>
+                <button type='submit'>Submit</button>
+            </form>
+            <br>
+            
+            <form method='post' action='#bottom'>
+                <button type='submit' name='go_to_dashboard'>Go To Dashboard</button>
+            </form>
         </div>
     </div>
 
-    <h2>Go back to <a href="5admin.php">Admin Dashboard</a></h2>
+    <div id="bottom"></div>
+
+    <script>
+    window.onload = function () {
+        var container = document.querySelector(".messages");
+        container.scrollTop = container.scrollHeight;
+        document.getElementById("bottom").scrollIntoView();
+    };
+    </script>
 </body>
 </html>
-
-

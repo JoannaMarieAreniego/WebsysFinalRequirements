@@ -34,6 +34,7 @@ if (isset($_GET['meal_id'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -235,6 +236,26 @@ if (isset($_GET['meal_id'])) {
             Image: <input type="text" name="image_link" value="<?php echo $meal['image_link']; ?>" required>
 
             <label for="all_steps">Instructions: </label>
+=======
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Meal</h1>
+
+        <form method="post" action="17processedit.php">
+            <input type="hidden" name="meal_id" value="<?php echo $meal_id; ?>">
+            <label for="meal_name">Meal Name:</label>
+            <input type="text" name="meal_name" value="<?php echo $meal['meal_name']; ?>" required>
+            
+            <label for="video_link">Video Link:</label>
+            <input type="text" name="video_link" value="<?php echo $meal['video_link']; ?>" required>
+            
+            <label for="image_link">Image Link:</label>
+            <input type="text" name="image_link" value="<?php echo $meal['image_link']; ?>" required>
+
+            <h3>Instructions</h3>
+            <label for="all_steps">All Steps:</label>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
             <textarea name="all_steps" rows="10"><?php
                 // Output each step on a new line
                 foreach ($instructions as $instruction) {
@@ -242,6 +263,10 @@ if (isset($_GET['meal_id'])) {
                 }
             ?></textarea>
 
+<<<<<<< HEAD
+=======
+            <h3>Ingredients</h3>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
             <label for="all_ingredients">All Ingredients:</label>
             <textarea name="all_ingredients" rows="10"><?php
                 foreach ($ingredients as $ingredient) {
@@ -249,8 +274,15 @@ if (isset($_GET['meal_id'])) {
                 }
             ?></textarea>
 
+<<<<<<< HEAD
             <button type="submit"  name="update_recipe" class="btn btn-outline-primary">Update</button>
         </form>
+=======
+            <button type="submit" name="update_recipe">Update Recipe</button>
+        </form>
+
+        <p><a href="9customer.php">Back to Categories</a></p>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
     </div>
 </body>
 </html>

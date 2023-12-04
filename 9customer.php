@@ -2,6 +2,8 @@
 session_start();
 require("0conn.php");
 
+$loggedInUsername = isset($_SESSION["username"]) ? $_SESSION["username"] : "";
+
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -9,19 +11,7 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Check if a search query is submitted
-if (isset($_GET['search'])) {
-    $searchTerm = '%' . $_GET['search'] . '%';
-    // Fetch meals that contain the search term in ingredients or meal name
-    $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_name LIKE :searchTerm OR meal_id IN (SELECT meal_id FROM ingredients WHERE ingredient_name LIKE :searchTerm)");
-    $stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
-} else {
-    $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
-}
-
-
-$stmt->execute();
-
+$stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
 $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -195,12 +185,6 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 5px;
             cursor: pointer;
         }
-
-        .search-container button:hover {
-            background-color: #128a61;
-        }
-
-       
     </style>
 </head>
 <body>
@@ -230,16 +214,35 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <h1>Customer Recipes</h1>
 
+        <form action="" method="GET">
+            <label for="search">Search Ingredients or Meal Name:</label>
+            <input type="text" name="search" id="search" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+            <button type="submit">Search</button>
+        </form>
+
+        <?php if (!empty($loggedInUsername)) { ?>
+            <h2>Profile</h2>
+            <p><a href="12user_profile.php">Profile</a></p>
+        
+        <!-- padesign ako netong Login to keneme -->
+        <?php } else { ?>
+            <p>Login to view your profile.</p>
+        <?php } ?>
+
         <div class="clearfix">
             <?php foreach ($recipes as $recipe) { ?>
                 <div class="recipe-box">
                     <h2><?php echo $recipe['meal_name']; ?></h2>
                     <img src="<?php echo $recipe['image_link']; ?>" style="max-width: 100%;">
                     <p>Date Created: <?php echo $recipe['date_created']; ?></p>
-                    <p><a class="button-primary" href="11meal_details.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
-                </div>
+                    <p><a href="11meal_details.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
+                </li>
             <?php } ?>
-        </div>
+        </ul>
+        <h2>Logout</h2>
+        <p><a href="4logout.php">Logout</a></p>
+    </div>
+
 </body>
 </html>
 

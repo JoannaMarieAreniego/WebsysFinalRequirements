@@ -110,6 +110,7 @@ function generateRecipePreview($pdo, $meal_id) {
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>Add Recipe</title>
     <style>
         #form-section {
@@ -208,46 +209,204 @@ function generateRecipePreview($pdo, $meal_id) {
     </script>
 </head>
 <body>
-    <h1>Add New Recipe</h1>
+
+<style>
+
+body {
+           
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('foodBackground.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            filter: blur(15px);
+            z-index: -1;
+        }
+
+        .logo-container {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+             justify-content: center; 
+             align-items: center;
+            background-color: #18392B; /* Green background */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 60px;
+            padding: 20px;
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .logo h1 {
+            font-family: cursive;
+            font-size: 24px;
+            margin: 0;
+            color: #fff; /* White text */
+        }
+
+        h3 {
+            /* margin-top: 70px; */
+            color: #fff; /* White text */
+            font-weight: bold;
+            padding: 20px;
+        }
+
+        .recipe-name {
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 5px;
+        }
+
+        .container2 {
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 5px;
+
+        }
+
+        h3 {
+            color:  #4caf50; 
+            font-weight: bold;
+        }
+
+        .btn-secondary {
+            background-color: #4caf50; /* Green background */
+            color: #fff; /* White text */
+        }
+
+        #form-section,
+        #preview-section {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #ffffff; /* White background */
+            border-radius: 10px;
+            /* box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); */
+            margin-top: 30px; 
+        }
+
+        #buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #preview-button,
+        #edit-button {
+            background-color: #badabf; 
+            color: #388e3c; /* White text */
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            outline: #4caf50;
+        }
+
+        #add-button {
+            background-color: #388e3c; /* Darker green for Add Recipe button */
+            color: #fff; 
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            outline: #4caf50;      }
+       
+        .container{
+            margin-top: 80px;
+        } 
+        .dashboard{
+           margin-left: 1100px;
+        align-items: center;
+        justify-items: center;
+           
+        }
+</style>
+<div class="logo-container">
+        <div class="logo">
+            <img src="logo.png" alt="Tastebud Logo">
+            <h1>Tastebud</h1>
+        </div>
+        <div class="dashboard">
+    <a href="5admin.php" class="btn btn-secondary">Admin Dashboard</a>
+</div>
+    </div>
+
+    <div class = "container" >
+    
     <div id="form-section">
+    <h3>Add New Recipe</h3>
         <form method="post" onsubmit="showPopupMessage('Meal added successfully');">
-            <div>
+            <div class = "recipe-name">
                 <label for="recipe_name">Recipe Name:</label>
-                <input type="text" name="recipe_name" id="recipe_name" required>
+                <input type="text" name="recipe_name" id="recipe_name"  class = "form-control" required>
             </div>
-            <div>
-                <label for="category_id">Category:</label>
-                <select name="category_id" id="category_id" required>
-                    <?php
-                    $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
-                    foreach ($categories as $category) {
-                        echo "<option value='{$category['category_id']}'>{$category['category_name']}</option>";
-                    }
-                    ?>
-                </select>
-            </div>
+          
+            <div class = "container2">
+            <div class="form-group">
+    <label for="category_id">Category:</label>
+    <select name="category_id" id="category_id" class="form-control" required>
+        <?php
+             $categories = $pdo->query("SELECT * FROM categories")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($categories as $category) {
+            echo "<option value='{$category['category_id']}'>{$category['category_name']}</option>";
+             }
+                 ?>
+            </select>
+        </div>
+
+        <div class= "form-group">
             <div>
                 <label for="video_link">Video Link:</label>
-                <input type="text" name="video_link" id="video_link" required>
+                <input type="text" name="video_link" id="video_link" class = "form-control" required>
             </div>
             <div>
                 <label for="instructions">Instructions (one step per line):</label>
-                <textarea name="instructions" id="instructions" rows="5" required></textarea>
+                <textarea name="instructions" id="instructions" rows="5" class = "form-control" required></textarea>
             </div>
             <div>
                 <label for="ingredients">Ingredients (one ingredient per line):</label>
-                <textarea name="ingredients" id="ingredients" rows="5" required></textarea>
+                <textarea name="ingredients" id="ingredients" rows="5"  class = "form-control"required></textarea>
             </div>
             <div>
                 <label for="image_link">Image Link:</label>
-                <input type="text" name="image_link" id="image_link" required>
+                <input type="text" name="image_link" id="image_link" class = "form-control" required>
             </div>
-            <div id="buttons">
-                <button id="preview-button" type="button" onclick="togglePreview()">Preview</button>
-                <button id="add-button" type="submit">Add Recipe</button>
-                <button id="edit-button" type="button" style="display: none;">Edit</button>
+            <div class="text-center" id="buttons">
+    <button id="preview-button" type="button" class="btn btn-primary" onclick="togglePreview()">Preview</button>
+    <button id="add-button" type="submit" class="btn btn-success">Add Recipe</button>
+    <button id="edit-button" type="button" class="btn btn-warning" style="display: none;">Edit</button>
+</div>
+
             </div>
         </form>
+    </div>
+    </div>
     </div>
     
     <div id="popup" style="display: none;">
@@ -255,7 +414,7 @@ function generateRecipePreview($pdo, $meal_id) {
     </div>
     <div id="preview-section">
         <div id="readonly-section">
-            <p>Recipe Name: <span class="readonly-input"></span></p>
+            <h3>Recipe Name: <span class="readonly-input"></span></h3>
             <p>Video Link: <span class="readonly-input"></span></p>
             <p>Image Link: <span class="readonly-input image-link"></span></p>
             <p>Category: <span class="readonly-input"></span></p>
@@ -272,6 +431,10 @@ function generateRecipePreview($pdo, $meal_id) {
         </div>
     </div>
 
-    <h2>Go back to <a href="5admin.php">Admin Dashboard</a></h2>
+
+   
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

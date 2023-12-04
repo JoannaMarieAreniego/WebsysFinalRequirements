@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
 <?php
 session_start();
 require("0conn.php");
@@ -44,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_recipe'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
 <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -247,3 +252,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_recipe'])) {
 
 </body>
 </html>
+=======
+</head>
+<body>
+    <div class="container">
+        <h1>Meal Details</h1>
+
+        <h2>Meal Name: <?php echo $meal['meal_name']; ?></h2>
+        <h3>Video</h3>
+        <p>Video Link: <a href="<?php echo $meal['video_link']; ?>" target="_blank">Watch Video</a></p>
+        <h3>Image</h3>
+        <img src="<?php echo $meal['image_link']; ?>" alt="Recipe Image" style="max-width: 50%;">
+
+        <h3>Instructions</h3>
+        <ol>
+            <?php
+            foreach ($instructions as $instruction) {
+                echo "<li>{$instruction['step_description']}</li>";
+            }
+            ?>
+        </ol>
+
+        <h3>Ingredients</h3>
+        <ul>
+            <?php
+            foreach ($ingredients as $ingredient) {
+                echo "<li>{$ingredient['ingredient_name']}</li>";
+            }
+            ?>
+        </ul>
+
+
+        <form method="post" action="">
+            <button type="submit" name="edit_recipe">Edit</button>
+            <button type="submit" name="delete_recipe" onclick="return confirm('Are you sure you want to delete this recipe?')">Delete</button>
+        </form>
+
+        <a href="shoppingList.php?meal_id=<?php echo $meal_id; ?>" class="shopping-list-btn">Shopping List</a>
+        <p><a href="9customer.php">Back to Categories</a></p>
+    </div>
+</body>
+</html>
+
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11

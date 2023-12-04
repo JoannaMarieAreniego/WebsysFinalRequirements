@@ -52,7 +52,11 @@ if (isset($_POST['question'])) {
             CURLOPT_POSTFIELDS => $postdata,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
+<<<<<<< HEAD
                 'Authorization: Bearer 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',
+=======
+                'Authorization: Bearer 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',
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
             ),
         ));
 
@@ -295,4 +299,8 @@ if (!isset($_SESSION['user_avatar'])) {
     };
     </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11

@@ -10,6 +10,8 @@ try {
     die("Error: " . $e->getMessage());
 }
 
+$errors = [];
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $entered_username = $_POST["username"];
     $entered_password = $_POST["password"];
@@ -29,29 +31,107 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         exit();
     } else {
-        echo "Invalid username or password. Please try again.";
+        $errors[] = "Invalid username or password. Please try again.";
     }
 }
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #ededed;
+            color: #000;
+        }
+
+        .container {
+            display: flex;
+            max-width: 800px; 
+            margin: 100px auto;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+            background: url('images/loginPhoto.jpg');
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px 0 0 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            background-color: #fff;
+        }
+
+        h2 {
+            text-align: center;
+            color: #000;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #000;
+        }
+
+        button {
+            width: 100%;
+            background-color: #fff;
+            color: #000;
+        }
+
+        .register-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
-    <form method="post">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" required>
+    <div class="container">
+        <div class="left-panel">
         </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" required>
+        <div class="right-panel">
+            <h2>Login</h2>
+            <?php
+            foreach ($errors as $error) {
+                echo '<div class="alert alert-danger" role="alert">' . $error . '</div>';
+            }
+            ?>
+            <form method="post">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" id="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" name="password" id="password" class="form-control" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div class="register-link">
+                <p>Don't have an account? <a href="1registration.php">Register</a></p>
+            </div>
         </div>
-        <button type="submit">Login</button>
-    </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

@@ -33,11 +33,19 @@ if (isset($_GET['meal_id'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Check if the user is logged in
+$userLoggedIn = isset($_SESSION['username']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $userLoggedIn) {
     $comment_text = $_POST['comment'];
     $insertStmt = $pdo->prepare("INSERT INTO comments (meal_id, user_name, comment_text) VALUES (?, ?, ?)");
+<<<<<<< HEAD:11meal_details.php
     $insertStmt->execute([$meal_id, $_SESSION['username'], $comment_text,]);
     header("Location: 11meal_details.php?meal_id=$meal_id");
+=======
+    $insertStmt->execute([$meal_id, $_SESSION['username'], $comment_text]);
+    header("Location: 11meal_details_comments.php?meal_id=$meal_id");
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11:11meal_details_comments.php
     exit();
 }
 ?>
@@ -260,11 +268,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
+<<<<<<< HEAD:11meal_details.php
     <div class="logo-container">
         <div class="logo">
             <img src="logo.png" alt="Tastebud Logo">
             <h1>Tastebud</h1>
         </div>
+=======
+    <div class="container">
+        <h1>Meal Details</h1>
+
+        <h2>Meal Name: <?php echo $meal['meal_name']; ?></h2>
+        <h3>Video</h3>
+        <p>Video Link: <a href="<?php echo $meal['video_link']; ?>" target="_blank">Watch Video</a></p>
+        <h3>Image</h3>
+        <img src="<?php echo $meal['image_link']; ?>" alt="Recipe Image" style="max-width: 50%;">
+
+        <h3>Instructions</h3>
+        <ol>
+            <?php
+            foreach ($instructions as $instruction) {
+                echo "<li>{$instruction['step_description']}</li>";
+            }
+            ?>
+        </ol>
+
+        <h3>Ingredients</h3>
+        <ul>
+            <?php
+            foreach ($ingredients as $ingredient) {
+                echo "<li>{$ingredient['ingredient_name']}</li>";
+            }
+            ?>
+        </ul>
+        <?php if ($userLoggedIn): ?>
+            <a href="shoppingList.php?meal_id=<?php echo $meal_id; ?>" class="shopping-list-btn">Shopping List</a>
+        <?php else: ?>
+            <p></p>
+        <?php endif; ?>
+
+        <h3>Comments</h3>
+        <?php if (count($comments) > 0): ?>
+            <ul>
+                <?php foreach ($comments as $comment): ?>
+                    <li>
+                        <p><strong><?php echo $comment['user_name']; ?>:</strong> <?php echo $comment['comment_text']; ?><br>
+                           <?php echo $comment['created_at']; ?></p>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <p>No comments available.</p>
+        <?php endif; ?>
+
+        <?php if ($userLoggedIn): ?>
+            <form method="post" action="">
+                <div>
+                    <label for="comment">Add a Comment:</label>
+                    <textarea name="comment" id="comment" rows="3" required></textarea>
+                </div>
+                <button type="submit">Submit Comment</button>
+            </form>
+        <!-- padesign din -->
+        <?php else: ?>
+            <p>You need to <a href="1login.php">log in</a> to post comments.</p>
+        <?php endif; ?>
+
+        <p><a href="9customer.php">Back to Categories</a></p>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11:11meal_details_comments.php
     </div>
     
     <div class="topnav">

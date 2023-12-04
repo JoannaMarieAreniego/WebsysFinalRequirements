@@ -98,6 +98,7 @@ function generateRecipePreview($pdo, $meal_id) {
 <!DOCTYPE html>
 <html>
 <head>
+<<<<<<< HEAD
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -227,12 +228,23 @@ function generateRecipePreview($pdo, $meal_id) {
             border: 2px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+=======
+    <title>Add Recipe</title>
+    <style>
+        #form-section {
+            display: block;
+        }
+
+        #preview-section {
+            display: none;
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
         }
 
         #buttons {
             text-align: center;
             margin-top: 20px;
         }
+<<<<<<< HEAD
 
         button {
             padding: 10px 20px;
@@ -277,6 +289,9 @@ function generateRecipePreview($pdo, $meal_id) {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
+=======
+        
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
     </style>
     <script>
         function togglePreview() {
@@ -360,6 +375,7 @@ function generateRecipePreview($pdo, $meal_id) {
     </script>
 </head>
 <body>
+<<<<<<< HEAD
 <div class="logo-container">
         <div class="logo">
             <img src="logo.png" alt="Tastebud Logo">
@@ -377,6 +393,9 @@ function generateRecipePreview($pdo, $meal_id) {
     <div class="container">
     <h2>Add New Recipe</h2>
     <button id="preview-button" type="button" onclick="togglePreview()">Preview</button>
+=======
+    <h1>Add New Recipe</h1>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
     <div id="form-section">
         <form method="post" onsubmit="showPopupMessage('Meal added successfully');">
             <div>
@@ -399,11 +418,19 @@ function generateRecipePreview($pdo, $meal_id) {
                 <input type="text" name="video_link" id="video_link" required>
             </div>
             <div>
+<<<<<<< HEAD
                 <label for="instructions">Instructions:</label>
                 <textarea name="instructions" id="instructions" rows="5" required></textarea>
             </div>
             <div>
                 <label for="ingredients">Ingredients:</label>
+=======
+                <label for="instructions">Instructions (one step per line):</label>
+                <textarea name="instructions" id="instructions" rows="5" required></textarea>
+            </div>
+            <div>
+                <label for="ingredients">Ingredients (one ingredient per line):</label>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
                 <textarea name="ingredients" id="ingredients" rows="5" required></textarea>
             </div>
             <div>
@@ -411,6 +438,10 @@ function generateRecipePreview($pdo, $meal_id) {
                 <input type="text" name="image_link" id="image_link" required>
             </div>
             <div id="buttons">
+<<<<<<< HEAD
+=======
+                <button id="preview-button" type="button" onclick="togglePreview()">Preview</button>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
                 <button id="add-button" type="submit">Add Recipe</button>
                 <button id="edit-button" type="button" style="display: none;">Edit</button>
             </div>
@@ -439,5 +470,9 @@ function generateRecipePreview($pdo, $meal_id) {
         </div>
     </div>
 
+<<<<<<< HEAD
+=======
+    <h2>Go back to <a href="12user_profile.php">User Profile</a></h2>
+>>>>>>> 5fe90fe20225a99b7c0e72287c2c9b70d1a91b11
 </body>
 </html>
