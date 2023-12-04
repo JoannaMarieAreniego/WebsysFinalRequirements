@@ -9,22 +9,17 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Check if a search query is submitted
-if (isset($_GET['search'])) {
-    $searchTerm = '%' . $_GET['search'] . '%';
-    // Fetch meals that contain the search term in ingredients or meal name
-    $stmt = $pdo->prepare("SELECT * FROM meals WHERE meal_name LIKE :searchTerm OR meal_id IN (SELECT meal_id FROM ingredients WHERE ingredient_name LIKE :searchTerm)");
-    $stmt->bindParam(':searchTerm', $searchTerm, PDO::PARAM_STR);
-} else {
-    $stmt = $pdo->query("SELECT * FROM meals ORDER BY date_created ASC");
+if (!isset($_SESSION['username'])) {
+    header("Location: 1login.php");
+    exit();
 }
 
+$username = $_SESSION['username'];
 
-$stmt->execute();
-
-$recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->prepare("SELECT * FROM meals WHERE username = ? ORDER BY date_created DESC");
+$stmt->execute([$username]);
+$userRecipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -32,8 +27,7 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <link rel="icon" type="image/png">
+    <title>User Profile</title>
     <style>
         body {
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
@@ -43,6 +37,7 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             display: flex;
             flex-wrap: wrap;
         }
+
 
         .topnav {
             background-color: #16b978;
@@ -79,55 +74,90 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .topnav a i {
             margin-right: 30px;
         }
+        .add-recipe-container {     
+            background-color: white;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px; 
+            border-bottom: solid 3px whitesmoke;
+            margin-top: 40px;
+            align-items: left;
+            justify-content: left;
+        }
+        .add-recipe-button {
+            color: black;
+            padding: 10px 50px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            margin-bottom: 20px;
+            margin-left: 20px;
+            transition: background-color 0.3s;
+            margin-right: 20px;
+        }
 
-        .container {
+        .add-recipe-button:hover {
+            background-color: whitesmoke;
+            color: black;
+            
+        }
+        .add-recipe-button i {
+            margin-right: 20px;
+        }
+        h3{
+            margin-left:20px;
+            margin-top: 30px;
+            margin-bottom: 30px;;
+            color: #16b978; margin-right: 20px;
+        }
+      
+        .container-1 {
             flex-grow: 1;
-            margin: 60px auto 20px;
-            background-color: #fff;
             width: 100%;
+            background-color: #fff;
+            position: static;
         }
 
         .recipe-box {
-            margin-right: 10px;
+            background-color: #fff;
             box-sizing: border-box;
             float: left;
-            padding: 10px;
-            border-radius: 15px;
+            border-bottom: 3px solid whitesmoke;
             background: white;
             margin-bottom: 20px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-            width: calc(33.33% - 20px); 
-            box-sizing: border-box;
-            margin-left: 10px;
+            width: calc(70% - 90px); 
+            margin-left: 20px;
+            
         }
         .recipe-box img {
-            width: 100%; /* Make the image fill the container */
-            height: 200px; /* Set a fixed height for consistency */
+            width: 100%; 
+            height: 400px; 
             object-fit: cover; 
             border-radius: 10px; 
         }
-
+        .recipe-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            justify-content: space-between;
+            margin-left: 300px; 
+        }
         h1 {
-            font-size: 24px;
-            margin-left: 60px;
-            margin-top: 20px;
-            margin-bottom: 40px;;
+            color: #16b978;
+            font-size: 30px;
+            margin-left: 300px;
+            margin-top: 110px;
+            margin-bottom: 20px;
+            }
+    
+        h2{
+            margin-left:310px;
             color: black;
         }
 
-        .button-primary {
-            background-color: #16b978;
-            color: #fff;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-        }
 
-        .button-primary:hover {
-            background-color: #128a61;
-        }
         .clearfix::after {
             content: "";
             clear: both;
@@ -164,81 +194,88 @@ $recipes = $stmt->fetchAll(PDO::FETCH_ASSOC);
             margin: 0;
             color: #16b978;
         }
-        .search-container {
-            margin-top: 80px;
-            padding: 20px;
-            margin-bottom: 10px;
-            border-radius: 20px;
+
+        .sidebar {
+            margin-top: 140px;
+            background-color: white;
+            padding-right: 10px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            float: left;
+            position: fixed;
+            height: 100vh;
         }
 
-        .search-container label {
-            font-size: 18px;
-            margin-right: 10px;
-        }
-        .search-container input {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            padding-left: 12px;
-            padding-right: 500px;
-            margin-left:350px;
-            background-color: #f2f2f2;
-            border: none;
-
-        }
-        .search-container button {
-            padding: 10px 16px;
-            font-size: 16px;
-            background-color: #16b978;
+    
+        .recipe-box .view-details-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #04AA6D;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 10px;
         }
 
-        .search-container button:hover {
+        .recipe-box .view-details-button:hover {
             background-color: #128a61;
         }
-
+         a {
+            color: #007BFF;
+        }
        
+       
+
     </style>
 </head>
 <body>
+
 <div class="logo-container">
-        <div class="logo">
-            <img src="logo.png" alt="Tastebud Logo">
-            <h1>Tastebud</h1>
-        </div>
+    <div class="logo">
+        <img src="logo.png" alt="Tastebud Logo">
+        <h1>Tastebud</h1>
     </div>
-     
-    <div class="topnav">
+</div>
+
+<div class="topnav">
         <a href="9customer.php"><i class="fa fa-fw fa-home"></i> Home</a>
         <a href="categories.php"><i class="fas fa-fw fa-user"></i>Categories</a>
         <a href="14chat.php"><i class="fa-solid fa-comment"></i>Chat</a>
         <a href="12user_profile.php"><i class="fas fa-fw fa-user"></i> Profile</a>
         <a href="4logout.php"><i class="fas fa-fw fa-sign-out"></i> Logout</a>
+</div>
+
+<div class="container-1">
+<div class="sidebar">
+<h3>Create your own Recipe</h3>
+    <a href="13add_recipe.php" class="add-recipe-button">
+    <i class="fa-solid fa-pen-to-square"></i>Create new</a>
+</div>
+
+<div class="add-recipe-container">
+    <h1>Hi <?php echo $username; ?>!</h1>
+
     </div>
 
-    <div class="container">
-    <div class="search-container">
-        <form action="" method="GET">
-            <input type="text" placeholder= "Search" name="search" id="search" value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
-            <button type="submit">Search</button>
-        </form>
-    </div>
 
+<div class="recipe-container">
+    <h2>Timeline</h2>
+    <ul class="recipe-list">
+        <?php foreach ($userRecipes as $recipe) { ?>
+            <li class="recipe-box">
+                <h3><?php echo $recipe['meal_name']; ?></h3>
+                <img src="<?php echo $recipe['image_link']; ?>" alt="Recipe Image"><br><br>
+                <a href="<?php echo $recipe['video_link']; ?>" target="_blank">Video Tutorial</a>
+                <p><a class="view-details-button" href="15userposts.php?meal_id=<?php echo $recipe['meal_id']; ?>">Show more</a></p>
+                <p>Date: <?php echo $recipe['date_created']; ?></p>
+            </li>
+        <?php } ?>
+    </ul>
+</div>
+</div>
 
-        <h1>Customer Recipes</h1>
-
-        <div class="clearfix">
-            <?php foreach ($recipes as $recipe) { ?>
-                <div class="recipe-box">
-                    <h2><?php echo $recipe['meal_name']; ?></h2>
-                    <img src="<?php echo $recipe['image_link']; ?>" style="max-width: 100%;">
-                    <p>Date Created: <?php echo $recipe['date_created']; ?></p>
-                    <p><a class="button-primary" href="11meal_details.php?meal_id=<?php echo $recipe['meal_id']; ?>">View Details</a></p>
-                </div>
-            <?php } ?>
         </div>
 </body>
 </html>
